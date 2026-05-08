@@ -28,6 +28,12 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',')
 
+# CSRF Trusted Origins for custom domains
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'https://form.akgec.ac.in').split(',')
+
+# Secure Proxy SSL Header (required when behind a proxy like Nginx/Load Balancer)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 
 # Application definition
 # ... (rest of the apps and middleware)
