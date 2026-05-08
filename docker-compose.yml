@@ -4,12 +4,12 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     environment:
-      MYSQL_DATABASE: recruitment_db
-      MYSQL_USER: recruitment_user
-      MYSQL_PASSWORD: your_secure_password
-      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
     ports:
-      - "3306:3306"
+      - "${DB_PORT}:3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 20s
@@ -21,15 +21,8 @@ services:
       - .:/app
       - static_volume:/app/static
       - media_volume:/app/media
-    environment:
-      - DJANGO_SECRET_KEY=your_secret_key_here
-      - DJANGO_DEBUG=False
-      - DJANGO_ALLOWED_HOSTS=*
-      - DB_NAME=recruitment_db
-      - DB_USER=recruitment_user
-      - DB_PASSWORD=your_secure_password
-      - DB_HOST=db
-      - DB_PORT=3306
+    env_file:
+      - .env
     ports:
       - "8000:8000"
     depends_on:
