@@ -4,3 +4,4 @@ django-cors-headers
 mysqlclient
 pillow
 gunicorn
+whitenoise[brotli]==6.7.0
