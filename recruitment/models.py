@@ -85,6 +85,11 @@ class Application(models.Model):
     teaching_exp_years = models.FloatField()
     industry_exp_years = models.FloatField(default=0)
     research_exp_years = models.FloatField(default=0)
+    total_experience = models.FloatField(default=0, editable=False) # Auto-calculated
+
+    def save(self, *args, **kwargs):
+        self.total_experience = (self.teaching_exp_years or 0) + (self.industry_exp_years or 0) + (self.research_exp_years or 0)
+        super().save(*args, **kwargs)
 
     curr_organization = models.CharField(max_length=200, blank=True, null=True)
     curr_designation = models.CharField(max_length=100, blank=True, null=True)
@@ -107,9 +112,14 @@ class Application(models.Model):
     h_index = models.IntegerField(default=0)
     i10_index = models.IntegerField(default=0)
 
-    patents_filed = models.IntegerField(default=0)
-    patents_published = models.IntegerField(default=0)
-    patents_granted = models.IntegerField(default=0)
+    # Split patents into Utility and Design based on PDF notes
+    utility_patents_filed = models.IntegerField(default=0)
+    utility_patents_published = models.IntegerField(default=0)
+    utility_patents_granted = models.IntegerField(default=0)
+    
+    design_patents_filed = models.IntegerField(default=0)
+    design_patents_published = models.IntegerField(default=0)
+    design_patents_granted = models.IntegerField(default=0)
 
     sponsored_projects = models.JSONField(default=list, blank=True)
     consultancy_work = models.JSONField(default=list, blank=True)
@@ -119,6 +129,7 @@ class Application(models.Model):
 
     # Section 6: Teaching
     teaching_subjects = models.JSONField(default=list, blank=True)
+    ug_pg_level = models.JSONField(default=list, blank=True) # New field for checkboxes (UG, PG)
 
     # Section 7: FDP
     fdp_attended = models.IntegerField(default=0)
@@ -134,8 +145,9 @@ class Application(models.Model):
     teaching_statement = models.TextField()
     research_statement = models.TextField()
 
-    # Section 10: Documents
+    # Section 10: Documents (Basic single fields)
     cv_pdf = models.FileField(upload_to='cv/')
+    # The following are kept for backward compatibility but multiple uploads will use ApplicationDocument
     degree_certificates = models.FileField(upload_to='certificates/', blank=True, null=True)
     experience_certificates = models.FileField(upload_to='experience/', blank=True, null=True)
     awards_documents = models.FileField(upload_to='awards/', blank=True, null=True)
@@ -144,3 +156,18 @@ class Application(models.Model):
 
     def __str__(self):
         return f"{self.full_name} - {self.post_applied_for}"
+
+class ApplicationDocument(models.Model):
+    DOCUMENT_TYPES = [
+        ('degree', 'Degree Certificate'),
+        ('experience', 'Experience Certificate'),
+        ('award', 'Award / Recognition'),
+        ('other', 'Other'),
+    ]
+    application = models.ForeignKey(Application, related_name='additional_documents', on_delete=models.CASCADE)
+    document_type = models.CharField(max_length=20, choices=DOCUMENT_TYPES)
+    file = models.FileField(upload_to='additional_docs/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.application.full_name} - {self.document_type}"
