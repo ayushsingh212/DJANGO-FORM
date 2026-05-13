@@ -146,8 +146,8 @@ class Application(models.Model):
     research_statement = models.TextField()
 
     # Section 10: Institutional Suitability
-    why_akgec = models.TextField(help_text="Reason for choosing AKGEC")
-    suitability_statement = models.TextField(help_text="Statement on how you are best suited for the post")
+    why_akgec = models.TextField(default="", help_text="Reason for choosing AKGEC")
+    suitability_statement = models.TextField(default="", help_text="Statement on how you are best suited for the post")
 
     # Section 11: Documents (Basic single fields)
     cv_pdf = models.FileField(upload_to='cv/')
