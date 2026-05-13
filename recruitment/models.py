@@ -145,7 +145,11 @@ class Application(models.Model):
     teaching_statement = models.TextField()
     research_statement = models.TextField()
 
-    # Section 10: Documents (Basic single fields)
+    # Section 10: Institutional Suitability
+    why_akgec = models.TextField(help_text="Reason for choosing AKGEC")
+    suitability_statement = models.TextField(help_text="Statement on how you are best suited for the post")
+
+    # Section 11: Documents (Basic single fields)
     cv_pdf = models.FileField(upload_to='cv/')
     # The following are kept for backward compatibility but multiple uploads will use ApplicationDocument
     degree_certificates = models.FileField(upload_to='certificates/', blank=True, null=True)

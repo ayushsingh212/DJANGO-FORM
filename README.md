@@ -58,6 +58,7 @@ This is a production-grade Django backend for the AKGEC Faculty Recruitment Form
 - Section 7: FDP / STTP / Workshops
 - Section 8: Administrative & Professional
 - Section 9: Statement Section
-- Section 10: Document Uploads (CV, Certificates, Experience, Awards)
-- Section 11: Declaration
-- Section 12: Final Submission (handled via standard POST)
+- Section 10: Institutional Suitability (Why AKGEC, Suitability Statement)
+- Section 11: Document Uploads (CV, Certificates, Experience, Awards)
+- Section 12: Declaration
+- Section 13: Final Submission (handled via standard POST)
