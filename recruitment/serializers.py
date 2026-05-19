@@ -84,17 +84,26 @@ class ApplicationSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, data):
-        # Cross-field validation
-        if data.get('has_phd'):
+        # Cross-field validation (handles partial updates by referencing existing instance)
+        instance = self.instance
+
+        has_phd = data.get('has_phd', getattr(instance, 'has_phd', False) if instance else False)
+        if has_phd:
             required_phd_fields = ['phd_university', 'phd_year', 'phd_specialization', 'phd_title']
             for field in required_phd_fields:
-                if not data.get(field):
+                val = data.get(field, getattr(instance, field, None) if instance else None)
+                if not val:
                     raise serializers.ValidationError({field: "This field is required if you have a PhD."})
         
-        if data.get('net_qualified') and not data.get('net_year'):
+        net_qualified = data.get('net_qualified', getattr(instance, 'net_qualified', False) if instance else False)
+        net_year = data.get('net_year', getattr(instance, 'net_year', None) if instance else None)
+        if net_qualified and not net_year:
             raise serializers.ValidationError({'net_year': "NET year is required if NET qualified."})
             
-        if data.get('gate_qualified') and not data.get('gate_year'):
+        gate_qualified = data.get('gate_qualified', getattr(instance, 'gate_qualified', False) if instance else False)
+        gate_year = data.get('gate_year', getattr(instance, 'gate_year', None) if instance else None)
+        if gate_qualified and not gate_year:
             raise serializers.ValidationError({'gate_year': "GATE year is required if GATE qualified."})
 
         return data
+

@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from .models import Application, ApplicationDocument
@@ -7,6 +8,7 @@ class ApplicationViewSet(viewsets.ModelViewSet):
     queryset = Application.objects.all()
     serializer_class = ApplicationSerializer
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         # Extract additional documents before standard creation
         # We expect files in request.FILES with keys matching document types
@@ -30,3 +32,4 @@ class ApplicationViewSet(viewsets.ModelViewSet):
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
