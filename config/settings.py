@@ -160,8 +160,6 @@ if os.environ.get('AWS_ACCESS_KEY_ID'):
     AWS_S3_SIGNATURE_VERSION = 's3v4'
     AWS_S3_FILE_OVERWRITE = False
     AWS_DEFAULT_ACL = None
-    AWS_QUERYSTRING_EXPIRE = 600
-
 
     STORAGES = {
         "default": {
