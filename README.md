@@ -35,21 +35,13 @@ Choose one of the setup methods below:
    ```bash
    docker-compose up --build -d
    ```
+   *(Note: On startup, the container automatically runs database migrations and collects static files).*
 
-3. **Run database migrations:**
-   ```bash
-   docker-compose exec web python manage.py migrate
-   ```
-
-4. **Collect static files (required when DEBUG=False):**
-   ```bash
-   docker-compose exec web python manage.py collectstatic --noinput
-   ```
-
-5. **Create a superuser (for admin access):**
+3. **Create a superuser (for admin access):**
    ```bash
    docker-compose exec web python manage.py createsuperuser
    ```
+
 
 The application will be accessible at:
 - Web App / API: `http://localhost:8001/`

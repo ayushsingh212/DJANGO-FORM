@@ -25,5 +25,5 @@ COPY . /app/
 # Create media and static directories
 RUN mkdir -p /app/media /app/static
 
-# Run the application
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "config.wsgi:application"]
+# Run the application (runs migrations, collects static files, and starts the server)
+CMD ["sh", "-c", "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn --bind 0.0.0.0:8000 config.wsgi:application"]
