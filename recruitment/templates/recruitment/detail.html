@@ -1,0 +1,816 @@
+{% extends 'recruitment/base.html' %}
+
+{% block title %}Applicant: {{ application.full_name }} | AKGEC Recruitment{% endblock %}
+
+{% block extra_css %}
+<style>
+    .back-btn-area {
+        margin-bottom: 2rem;
+    }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--glass-border);
+    }
+
+    .btn-back:hover {
+        color: var(--text-primary);
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-back svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    /* Profile Header Section */
+    .profile-header {
+        display: flex;
+        gap: 2.5rem;
+        align-items: center;
+        margin-bottom: 3rem;
+        background: rgba(15, 23, 42, 0.4);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 2rem;
+        position: relative;
+    }
+
+    .profile-img-container {
+        width: 140px;
+        height: 140px;
+        border-radius: 14px;
+        overflow: hidden;
+        border: 2px solid var(--accent-green);
+        background: #1e293b;
+        flex-shrink: 0;
+        box-shadow: 0 8px 24px rgba(16, 185, 129, 0.2);
+    }
+
+    .profile-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-img-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-secondary);
+    }
+
+    .profile-img-placeholder svg {
+        width: 48px;
+        height: 48px;
+    }
+
+    .profile-meta h1 {
+        font-size: 2.2rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        margin-bottom: 0.25rem;
+    }
+
+    .profile-sub {
+        font-size: 1.1rem;
+        color: var(--accent-green);
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+    }
+
+    .profile-id-badge {
+        display: inline-block;
+        background: rgba(6, 182, 212, 0.1);
+        border: 1px solid rgba(6, 182, 212, 0.2);
+        color: var(--accent-teal);
+        padding: 0.2rem 0.6rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    /* Tabs & Sectioning */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+    }
+
+    @media (max-width: 1024px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+        .profile-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 1.5rem;
+        }
+    }
+
+    .section-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 14px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        padding-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .section-title svg {
+        width: 20px;
+        height: 20px;
+        stroke: var(--accent-green);
+    }
+
+    /* Key Value Grid */
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .info-label {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .info-value {
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: var(--text-primary);
+    }
+
+    .info-value.empty {
+        color: var(--text-secondary);
+        font-style: italic;
+        font-weight: 400;
+    }
+
+    /* Academics table/list */
+    .edu-timeline {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .edu-node {
+        position: relative;
+        padding-left: 1.5rem;
+        border-left: 2px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .edu-node::before {
+        content: '';
+        position: absolute;
+        left: -6px;
+        top: 4px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--accent-green);
+        box-shadow: 0 0 8px var(--accent-green);
+    }
+
+    .edu-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+
+    .edu-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .edu-year {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--accent-teal);
+    }
+
+    /* Document item download */
+    .doc-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .doc-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--glass-border);
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+
+    .doc-item:hover {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .doc-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .doc-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        background: rgba(6, 182, 212, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--accent-teal);
+    }
+
+    .doc-name {
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .btn-download {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--accent-green);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        padding: 0.4rem 0.8rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .btn-download:hover {
+        background: var(--accent-green);
+        color: #fff;
+        border-color: var(--accent-green);
+    }
+
+    /* Research count boxes */
+    .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .metric-box {
+        background: rgba(15, 23, 42, 0.5);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .metric-number {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--accent-green);
+    }
+
+    .metric-label {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        margin-top: 0.25rem;
+    }
+
+    /* Bullet list */
+    .tag-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="back-btn-area">
+    <a href="{% url 'application-list' %}" class="btn-back">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+        </svg>
+        Back to Applications
+    </a>
+</div>
+
+<div class="profile-header">
+    <div class="profile-img-container">
+        {% if application.photograph %}
+            <img src="{{ application.photograph }}" alt="{{ application.full_name }}" class="profile-img">
+        {% else %}
+            <div class="profile-img-placeholder">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                </svg>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="profile-meta">
+        <h1>{{ application.full_name }}</h1>
+        <div class="profile-sub">{{ application.post_applied_for }}</div>
+        <div>
+            <span class="profile-id-badge">Application ID: APP-{{ application.id }}</span>
+            <span style="color: var(--text-secondary); font-size: 0.85rem; margin-left: 1rem;">
+                Submitted on: {{ application.created_at|date:"F d, Y @ H:i" }}
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Left Column (Primary Details) -->
+    <div>
+        <!-- Personal Details -->
+        <div class="section-card">
+            <h2 class="section-title">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                </svg>
+                Personal Information
+            </h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Father/Mother Name</span>
+                    <span class="info-value">{{ application.father_mother_name }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Date of Birth</span>
+                    <span class="info-value">{{ application.dob|date:"d F Y" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Gender</span>
+                    <span class="info-value">{{ application.gender }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Category</span>
+                    <span class="info-value">{{ application.category }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Nationality</span>
+                    <span class="info-value">{{ application.nationality }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Aadhaar Number</span>
+                    <span class="info-value">{{ application.aadhaar_number }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Email Address</span>
+                    <span class="info-value">{{ application.email }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Mobile Number</span>
+                    <span class="info-value">{{ application.mobile_number }}</span>
+                </div>
+                <div class="info-item" style="grid-column: span 2;">
+                    <span class="info-label">Correspondence Address</span>
+                    <span class="info-value">{{ application.correspondence_address }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Academic Profile -->
+        <div class="section-card">
+            <h2 class="section-title">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.62 48.62 0 0112 20.9c4.956 0 9.31-2.42 12-6.4a60.434 60.434 0 00-.491-6.347M12 3.75l10.386 3.03a1.125 1.125 0 010 2.185L12 12.015l-10.386-3.03a1.125 1.125 0 010-2.185L12 3.75z" />
+                </svg>
+                Academic Qualifications
+            </h2>
+            <div class="edu-timeline">
+                <!-- PhD (if available) -->
+                {% if application.has_phd %}
+                <div class="edu-node">
+                    <div class="edu-header">
+                        <span class="edu-title">Doctor of Philosophy (Ph.D.)</span>
+                        <span class="edu-year">Completed: {{ application.phd_year }}</span>
+                    </div>
+                    <div class="info-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
+                        <div class="info-item">
+                            <span class="info-label">University</span>
+                            <span class="info-value">{{ application.phd_university }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Institution</span>
+                            <span class="info-value">{{ application.phd_institution }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Mode / Specialization</span>
+                            <span class="info-value">{{ application.phd_mode }} / {{ application.phd_specialization }}</span>
+                        </div>
+                        <div class="info-item" style="grid-column: span 2;">
+                            <span class="info-label">Dissertation Title</span>
+                            <span class="info-value" style="font-style: italic;">"{{ application.phd_title }}"</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- PG Degree -->
+                <div class="edu-node">
+                    <div class="edu-header">
+                        <span class="edu-title">Post Graduation ({{ application.pg_degree }})</span>
+                        <span class="edu-year">Year: {{ application.pg_year }}</span>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Branch</span>
+                            <span class="info-value">{{ application.pg_branch }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">University / Institution</span>
+                            <span class="info-value">{{ application.pg_university }} ({{ application.pg_institution }})</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Mode / Percentage</span>
+                            <span class="info-value">{{ application.pg_mode }} ({{ application.pg_percentage }}%)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- UG Degree -->
+                <div class="edu-node">
+                    <div class="edu-header">
+                        <span class="edu-title">Under Graduation ({{ application.ug_degree }})</span>
+                        <span class="edu-year">Year: {{ application.ug_year }}</span>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Branch</span>
+                            <span class="info-value">{{ application.ug_branch }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">University / Institution</span>
+                            <span class="info-value">{{ application.ug_university }} ({{ application.ug_institution }})</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Mode / Percentage</span>
+                            <span class="info-value">{{ application.ug_mode }} ({{ application.ug_percentage }}%)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Class 12 -->
+                <div class="edu-node">
+                    <div class="edu-header">
+                        <span class="edu-title">Intermediate (Class XII)</span>
+                        <span class="edu-year">Year: {{ application.class12_year }}</span>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">School / Board</span>
+                            <span class="info-value">{{ application.class12_school }} ({{ application.class12_board }})</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Percentage</span>
+                            <span class="info-value">{{ application.class12_percentage }}%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Class 10 -->
+                <div class="edu-node">
+                    <div class="edu-header">
+                        <span class="edu-title">Matriculation (Class X)</span>
+                        <span class="edu-year">Year: {{ application.class10_year }}</span>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">School / Board</span>
+                            <span class="info-value">{{ application.class10_school }} ({{ application.class10_board }})</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Percentage</span>
+                            <span class="info-value">{{ application.class10_percentage }}%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Experience details -->
+        <div class="section-card">
+            <h2 class="section-title">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 .621-.504 1.125-1.125 1.125H4.875A1.125 1.125 0 013.75 18.4v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.45.258-.717.258H3.75c-.266 0-.523-.093-.717-.258m19.5 0a2.18 2.18 0 01-.75 1.661v3.5c0 .621-.504 1.125-1.125 1.125H1.125A1.125 1.125 0 010 18.4v-3.5a2.18 2.18 0 01.75-1.661m19.5 0a2.18 2.18 0 00.75-1.66V8.706c0-1.081-.768-2.015-1.837-2.175a48.11 48.11 0 00-3.413-.387m0 0a48.58 48.58 0 00-11.474 0m11.474 0l-1.025-1.748c-.417-.71-1.16-1.148-1.982-1.148h-3.963c-.822 0-1.565.438-1.982 1.148L6.726 6.14M6.726 6.14a48.11 48.11 0 01-3.413.387m0 0a2.18 2.18 0 00-.75 1.66v4.032c0 .621.504 1.107 1.125 1.107H19.5" />
+                </svg>
+                Professional Experience
+            </h2>
+            <div class="metric-grid" style="margin-bottom: 2rem;">
+                <div class="metric-box">
+                    <div class="metric-number">{{ application.total_experience }}</div>
+                    <div class="metric-label">Total Experience (Yrs)</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-number">{{ application.teaching_exp_years }}</div>
+                    <div class="metric-label">Teaching (Yrs)</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-number">{{ application.industry_exp_years }}</div>
+                    <div class="metric-label">Industry (Yrs)</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-number">{{ application.research_exp_years }}</div>
+                    <div class="metric-label">Research (Yrs)</div>
+                </div>
+            </div>
+
+            <h3 style="font-size: 1rem; color: var(--accent-teal); margin-bottom: 1rem; font-weight: 600;">Current Employment Details</h3>
+            <div class="info-grid" style="margin-bottom: 2rem;">
+                <div class="info-item">
+                    <span class="info-label">Organization</span>
+                    <span class="info-value">{{ application.curr_organization|default:"N/A" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Designation</span>
+                    <span class="info-value">{{ application.curr_designation|default:"N/A" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Nature of Appointment</span>
+                    <span class="info-value">{{ application.curr_nature|default:"N/A" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Pay Scale & Salary</span>
+                    <span class="info-value">{{ application.curr_pay_scale|default:"N/A" }} / {{ application.curr_salary|default:"N/A" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Duration From</span>
+                    <span class="info-value">{{ application.curr_duration_from|default:"N/A" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Duration To</span>
+                    <span class="info-value">{{ application.curr_duration_to|default:"Present" }}</span>
+                </div>
+            </div>
+            
+            {% if application.previous_employment %}
+            <h3 style="font-size: 1rem; color: var(--accent-teal); margin-bottom: 1rem; font-weight: 600;">Previous Employment</h3>
+            <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px; font-size: 0.9rem;">
+                {{ application.previous_employment|linebreaks }}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Research and Contributions -->
+        <div class="section-card">
+            <h2 class="section-title">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" />
+                </svg>
+                Research & Intellectual Property
+            </h2>
+            <div class="metric-grid">
+                <div class="metric-box">
+                    <div class="metric-number">{{ application.pub_sci }}</div>
+                    <div class="metric-label">SCI Pubs</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-number">{{ application.pub_esci }}</div>
+                    <div class="metric-label">ESCI Pubs</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-number">{{ application.pub_ugc }}</div>
+                    <div class="metric-label">UGC Pubs</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-number">{{ application.pub_others }}</div>
+                    <div class="metric-label">Others</div>
+                </div>
+            </div>
+            
+            <div class="metric-grid" style="margin-bottom: 2rem;">
+                <div class="metric-box">
+                    <div class="metric-number">{{ application.h_index }}</div>
+                    <div class="metric-label">H-Index</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-number">{{ application.i10_index }}</div>
+                    <div class="metric-label">i10-Index</div>
+                </div>
+                <div class="metric-box" style="grid-column: span 2;">
+                    <div class="metric-number" style="font-size: 1.2rem; margin-top: 0.25rem;">
+                        {% if application.google_scholar_link %}
+                            <a href="{{ application.google_scholar_link }}" target="_blank" style="color: var(--accent-teal); text-decoration: none;">View Profile &rarr;</a>
+                        {% else %}
+                            <span class="info-value empty">Not Provided</span>
+                        {% endif %}
+                    </div>
+                    <div class="metric-label">Google Scholar Link</div>
+                </div>
+            </div>
+
+            <h3 style="font-size: 1rem; color: var(--accent-teal); margin-bottom: 1rem; font-weight: 600;">Patents Summary</h3>
+            <div class="info-grid" style="margin-bottom: 2rem; grid-template-columns: 1fr 1fr;">
+                <div class="info-item" style="background: rgba(0,0,0,0.15); padding: 0.75rem; border-radius: 8px;">
+                    <span class="info-label">Utility Patents</span>
+                    <span class="info-value">Filed: {{ application.utility_patents_filed }} | Pub: {{ application.utility_patents_published }} | Granted: {{ application.utility_patents_granted }}</span>
+                </div>
+                <div class="info-item" style="background: rgba(0,0,0,0.15); padding: 0.75rem; border-radius: 8px;">
+                    <span class="info-label">Design Patents</span>
+                    <span class="info-value">Filed: {{ application.design_patents_filed }} | Pub: {{ application.design_patents_published }} | Granted: {{ application.design_patents_granted }}</span>
+                </div>
+            </div>
+
+            <h3 style="font-size: 1rem; color: var(--accent-teal); margin-bottom: 1rem; font-weight: 600;">Other Details</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">FDPs Attended</span>
+                    <span class="info-value">{{ application.fdp_attended }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">FDPs Organized</span>
+                    <span class="info-value">{{ application.fdp_organized }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">PhD Guidance (Completed / Ongoing)</span>
+                    <span class="info-value">{{ application.phd_guidance_completed }} / {{ application.phd_guidance_ongoing }}</span>
+                </div>
+            </div>
+            
+            <div style="margin-top: 1.5rem;" class="info-item">
+                <span class="info-label">Teaching Subjects</span>
+                <div class="tag-container" style="margin-top: 0.35rem;">
+                    {% if application.teaching_subjects %}
+                        {% for subject in application.teaching_subjects %}
+                            <span class="dept-tag" style="background: rgba(6,182,212,0.1); border-color: rgba(6,182,212,0.2); color: var(--accent-teal);">{{ subject }}</span>
+                        {% endfor %}
+                    {% else %}
+                        <span class="info-value empty">None</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Statements & Candidate Reflection -->
+        <div class="section-card">
+            <h2 class="section-title">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3h9m-9 3h9m-9.75-1.5a.75.75 0 01.75-.75h.008a.75.75 0 01.75.75v.008a.75.75 0 01-.75.75H6a.75.75 0 01-.75-.75V12zm0-3a.75.75 0 01.75-.75h.008a.75.75 0 01.75.75v.008a.75.75 0 01-.75.75H6a.75.75 0 01-.75-.75V9zm0 6a.75.75 0 01.75-.75h.008a.75.75 0 01.75.75v.008a.75.75 0 01-.75.75H6a.75.75 0 01-.75-.75v-.008z" />
+                </svg>
+                Professional Statements
+            </h2>
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <div class="info-item">
+                    <span class="info-label">Teaching Philosophy / Statement</span>
+                    <div style="background: rgba(0,0,0,0.15); padding: 1rem; border-radius: 8px; font-size: 0.95rem; line-height: 1.5;">
+                        {{ application.teaching_statement|linebreaks|default:"N/A" }}
+                    </div>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Research Statement</span>
+                    <div style="background: rgba(0,0,0,0.15); padding: 1rem; border-radius: 8px; font-size: 0.95rem; line-height: 1.5;">
+                        {{ application.research_statement|linebreaks|default:"N/A" }}
+                    </div>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Why AKGEC?</span>
+                    <div style="background: rgba(0,0,0,0.15); padding: 1rem; border-radius: 8px; font-size: 0.95rem; line-height: 1.5;">
+                        {{ application.why_akgec|linebreaks|default:"N/A" }}
+                    </div>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Suitability Statement</span>
+                    <div style="background: rgba(0,0,0,0.15); padding: 1rem; border-radius: 8px; font-size: 0.95rem; line-height: 1.5;">
+                        {{ application.suitability_statement|linebreaks|default:"N/A" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column (Document Verification Panel) -->
+    <div>
+        <div class="section-card" style="position: sticky; top: 90px;">
+            <h2 class="section-title">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                </svg>
+                Verification Documents
+            </h2>
+            <div class="doc-list">
+                <!-- CV -->
+                <div class="doc-item">
+                    <div class="doc-info">
+                        <div class="doc-icon">📄</div>
+                        <span class="doc-name">Curriculum Vitae (CV)</span>
+                    </div>
+                    {% if application.cv_pdf %}
+                        <a href="{{ application.cv_pdf }}" target="_blank" class="btn-download">View S3</a>
+                    {% else %}
+                        <span class="info-value empty">Missing</span>
+                    {% endif %}
+                </div>
+
+                <!-- Degree Certificate -->
+                <div class="doc-item">
+                    <div class="doc-info">
+                        <div class="doc-icon">📜</div>
+                        <span class="doc-name">Degree Certificates</span>
+                    </div>
+                    {% if application.degree_certificates %}
+                        <a href="{{ application.degree_certificates }}" target="_blank" class="btn-download">View S3</a>
+                    {% else %}
+                        <span class="info-value empty">Missing</span>
+                    {% endif %}
+                </div>
+
+                <!-- Experience Certificates -->
+                <div class="doc-item">
+                    <div class="doc-info">
+                        <div class="doc-icon">💼</div>
+                        <span class="doc-name">Experience Proof</span>
+                    </div>
+                    {% if application.experience_certificates %}
+                        <a href="{{ application.experience_certificates }}" target="_blank" class="btn-download">View S3</a>
+                    {% else %}
+                        <span class="info-value empty">N/A</span>
+                    {% endif %}
+                </div>
+
+                <!-- Publication List -->
+                <div class="doc-item">
+                    <div class="doc-info">
+                        <div class="doc-icon">📊</div>
+                        <span class="doc-name">Publications PDF</span>
+                    </div>
+                    {% if application.publication_list_pdf %}
+                        <a href="{{ application.publication_list_pdf }}" target="_blank" class="btn-download">View S3</a>
+                    {% else %}
+                        <span class="info-value empty">N/A</span>
+                    {% endif %}
+                </div>
+
+                <!-- Awards Documents -->
+                <div class="doc-item">
+                    <div class="doc-info">
+                        <div class="doc-icon">🏆</div>
+                        <span class="doc-name">Awards / Proofs</span>
+                    </div>
+                    {% if application.awards_documents %}
+                        <a href="{{ application.awards_documents }}" target="_blank" class="btn-download">View S3</a>
+                    {% else %}
+                        <span class="info-value empty">N/A</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if docs %}
+            <h3 style="font-size: 0.9rem; color: var(--text-secondary); margin: 1.5rem 0 0.75rem 0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Additional Files</h3>
+            <div class="doc-list">
+                {% for doc in docs %}
+                <div class="doc-item">
+                    <div class="doc-info">
+                        <div class="doc-icon">📁</div>
+                        <span class="doc-name" style="text-transform: capitalize;">{{ doc.document_type }} document</span>
+                    </div>
+                    <a href="{{ doc.file.url }}" target="_blank" class="btn-download">Download</a>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -80,13 +80,27 @@ The application will be accessible at:
    ```
 
 
-## API Endpoints
+## API & Web Endpoints
 
-- **Admin Panel:** `http://127.0.0.1:8000/admin/`
-- **Applications API:** `http://127.0.0.1:8000/api/applications/`
-  - `GET`: List all applications.
+### Web Interface
+- **Applications List Dashboard:** `http://localhost:8001/application/list/`
+  - Visual dashboard displaying applicant cards, experience, and departments.
+  - Client-side live search filtering by name, post, or application ID.
+- **Applicant Detailed Profile:** `http://localhost:8001/application/list/<id>/`
+  - High-fidelity visualization dashboard detailing educational timelines, teaching/research metrics, statements, and direct S3 document download links.
+
+### REST API Endpoints
+- **Applications Endpoint:** `http://localhost:8001/api/applications/`
+  - `GET`: List all applications as JSON.
   - `POST`: Submit a new application.
-  - `GET <id>`: Retrieve a specific application.
+- **Application Detail Endpoint:** `http://localhost:8001/api/applications/<id>/`
+  - `GET`: Retrieve a specific application as JSON.
+  - `PUT` / `PATCH`: Update application data.
+  - `DELETE`: Remove application record.
+
+### Other Paths
+- **API Documentation (Swagger UI):** `http://localhost:8001/api/docs/`
+- **Admin Control Panel:** `http://localhost:8001/admin/`
 
 ## Form Sections Covered
 
